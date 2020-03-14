@@ -32,6 +32,7 @@ export default class Test {
                }
                if (task.isCompleted) {
                    self._current++;
+                   // TODO: проверить, есть ли ещё задачи: если задач нет, надо передавать сообщение test:completed
                    self._ui.sendMessage("task:changed");
                }
                return result;
