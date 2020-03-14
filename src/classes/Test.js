@@ -1,11 +1,18 @@
-import Service from "./Service";
 import { Task } from "./Task";
 import shuffle from "lodash/shuffle";
 
 export default class Test {
-    constructor() {
-        this._service = new Service("./data.json");
-        this._service.getTasks().then(data => this._createTasks(data));
+    constructor({ service, ui }) {
+        this._service = service;
+        this._ui = ui;
+        this._ui.setTest(this);
+        this._status = "inactive";
+        this._service.getTasks()
+            .then(data => this._createTasks(data))
+            .then(() => {
+                this._ui.sendMessage("test:ready");
+                this._status = "ready";
+             });
         this._tasks = [];
         this._current = -1;
     }
@@ -18,17 +25,17 @@ export default class Test {
            task.checkAnswer = function(answer) {
                let result = checkFn.call(task, answer);
                if (result) {
-                   // нет ошибки
+                   self._ui.sendMessage("answer:correct");
                } else {
-                   // есть ошибка
+                   self._ui.sendMessage("answer:wrong");
                }
                if (task.isCompleted) {
                    self._current++;
+                   self._ui.sendMessage("task:changed");
                }
                return result;
            }
         });
-        this._current = 0;
     }
 
     get task() {
@@ -36,5 +43,21 @@ export default class Test {
             return this._tasks[this._current];
         }
         return null;
+    }
+
+    get status() {
+        return this._status;
+    }
+
+    get ready() {
+        return this._status === "ready";
+    }
+
+    start() {
+        if (this.ready) {
+            // запустить таймер, показывать первый вопрос и т.д.
+            this._current = 0;
+            self._ui.sendMessage("task:changed");
+        }
     }
 }

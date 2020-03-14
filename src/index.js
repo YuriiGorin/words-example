@@ -1,7 +1,10 @@
 import Test from "./classes/Test";
+import Service from "./classes/Service";
+import UIController from "./classes/UIController";
 
-window.addEventListener("load", () => {
-    window.test = new Test();
+const test = new Test({
+    service: new Service("./data.json"),
+    ui: new UIController(),
 });
 
 // const taskData = [
